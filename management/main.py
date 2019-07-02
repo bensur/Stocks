@@ -1,18 +1,20 @@
-from BaseHTTPServer import HTTPServer
-from APIHandler import APIHandler
+from http.server import HTTPServer
+from management.APIHandler import APIHandler
+import lib.helpers as helpers
 
 PORT_NUMBER = 8080
 
 if __name__ == '__main__':
+    logger = helpers.get_logger()
     try:
         # Create a web server and define the handler to manage the
         # incoming request
         server = HTTPServer(('', PORT_NUMBER), APIHandler)
-        print 'Started httpserver on port ', PORT_NUMBER
+        logger.info('Started httpserver on port %i' % PORT_NUMBER)
 
-        # Wait forever for incoming htto requests
+        # Wait forever for incoming http requests
         server.serve_forever()
 
     except KeyboardInterrupt:
-        print '^C received, shutting down the web server'
+        logger.info('^C received, shutting down the web server')
         server.socket.close()

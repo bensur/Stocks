@@ -1,6 +1,6 @@
 import logging
 import pycurl
-from StringIO import StringIO
+from io import StringIO
 
 
 def curl(url, curl_headers=None, post_data="", username=None, password=None, cookie_file=None, cookie_jar=None):
@@ -77,7 +77,8 @@ def get_logger():
     ch.setFormatter(formatter)
     # fh.setFormatter(formatter)
     # Add the handlers to logger
-    logger.addHandler(ch)
+    if not logger.hasHandlers():
+        logger.addHandler(ch)
     # logger.addHandler(fh)
     return logger
 
