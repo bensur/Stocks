@@ -1,6 +1,7 @@
 import lib.helpers as helpers
 from management.DBManager import DBManager
 import json
+from alpha_vantage.timeseries import TimeSeries
 
 
 class StocksManager:
@@ -12,6 +13,8 @@ class StocksManager:
         }
         self.requests_counter = 0
         self.DBM = DBManager()
+        self.ts = TimeSeries(key="TEFK1KZP8TU5E11J")  # TODO: Fix hardcoded key
+        # self.ts = TimeSeries()
 
     def handle(self, path, headers, command, post_data=None):
         self.requests_counter += 1
@@ -30,9 +33,9 @@ class StocksManager:
             if "register" in path:
                 return self.register(headers, post_data)
             elif "buy" in path:
-                return self.buy(headers, post_data)
+                return self.update(headers, post_data, 'add')
             elif "sell" in path:
-                return self.sell(headers, post_data)
+                return self.update(headers, post_data, 'sub')
         elif command == "GET":
             query_params = self.get_query_params(path)
             if 'account_summary' in path:
@@ -78,31 +81,29 @@ class StocksManager:
         return {"response": "Here is your token: %s" % token,
                 "response_code": 200}
 
-    def buy(self, headers, post_data):
+    def update(self, headers, post_data, operation):
         user_id = self.validate_token(headers)
-        stocks = post_data["stocks"]
-        self.logger.debug("User %s requested to buy %s" % (user_id, json.dumps(stocks)))
+        if not post_data:
+            self.logger.warn("No post data for request #%i" % self.requests_counter)
+            return {"response": "No post data for request",
+                    "response_code": 400}
         if user_id:
+            if 'stocks' not in post_data:
+                self.logger.warn("User %s did not send stocks in the request" % user_id)
+                self.logger.debug("Post data sent (by user %s: %s" % (user_id, json.dumps(post_data)))
+                return {"response": "Request data does not contain 'stocks'!",
+                        "response_code": 400}
+            stocks = post_data["stocks"]
+            self.logger.debug("User %s requested to buy %s" % (user_id, json.dumps(stocks)))
             balance = self.validate_balance(user_id, stocks)
             if not balance:
-                self.logger.warn("User %s does not have enough in his balance to buy stocks %s" % (user_id,
-                                                                                                   json.dumps(stocks)))
-                return {"response": "User %s does not have enough in his balance to buy stocks %s" % (user_id,
-                                                                                                      json.dumps(stocks)),
+                response_message = "User %s does not have enough in his balance to buy stocks %s" % (user_id,
+                                                                                                     json.dumps(stocks))
+                self.logger.warn(response_message)
+                return {"response": response_message,
                         "response_code": 400}
-            self.DBM.update(user_id, balance, stocks)
-            return {"response": "Bought!",
-                    "response_code": 200}
-        else:
-            self.logger.warn("No valid token in request #%i" % self.requests_counter)
-            return {"response": "No valid token received",
-                    "response_code": 401}
-
-    def sell(self, headers, post_data):
-        user_id = self.validate_token(headers)
-        if user_id:
-            self.logger.debug("Got sell request")
-            return {"response": "Sold!",
+            self.DBM.update(user_id, balance, stocks, operation)
+            return {"response": "Updated stocks!",
                     "response_code": 200}
         else:
             self.logger.warn("No valid token in request #%i" % self.requests_counter)
@@ -149,6 +150,8 @@ class StocksManager:
             return None
 
     def get_stock_price(self, stock_name):
-        stock_price = 1
-        self.logger.debug("Price for %s is %i" % (stock_name, stock_price))
+        data, meta_data = self.ts.get_intraday(stock_name)  # TODO: check the stock exist?
+        self.logger.debug("data: %s, metadata: %s" % (data, meta_data))
+        stock_price = float(data[meta_data['3. Last Refreshed']]['4. close'])
+        self.logger.debug("Price for %s is %f" % (stock_name, stock_price))
         return stock_price
