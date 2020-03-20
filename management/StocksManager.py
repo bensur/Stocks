@@ -21,7 +21,8 @@ class StocksManager:
                    " the value is the number of stocks to buy",
             "sell": "POST Method. Sells stocks. "
                     "POST body must contain 'stocks' hash where the key is the name of stock to sell and"
-                   " the value is the number of stocks to sell"
+                   " the value is the number of stocks to sell",
+            "help": "Return this help summary"
         }
         for http_method in self.supported_paths.keys():
             for path in self.supported_paths[http_method]:

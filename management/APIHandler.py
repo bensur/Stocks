@@ -13,7 +13,11 @@ class APIHandler(BaseHTTPRequestHandler):
 
     # Handler for the GET requests
     def do_GET(self):
-        response = self.sm.handle(path=self.path, headers=self.headers, command=self.command)
+        try:
+            response = self.sm.handle(path=self.path, headers=self.headers, command=self.command)
+        except Exception as e:
+            response = {"response_code": 500, "response": json.dumps({"response_message": "An error occurred"})}
+            logger.error("An error occurred. Exception: %s" % e)
         self.send_response(response['response_code'])
         if 'headers' in response:
             for header_k, header_v in response['headers']:
@@ -33,7 +37,11 @@ class APIHandler(BaseHTTPRequestHandler):
             post_body = self.rfile.read(content_len)
         else:
             post_body = None
-        response = self.sm.handle(path=self.path, headers=self.headers, command=self.command, post_data=post_body)
+        try:
+            response = self.sm.handle(path=self.path, headers=self.headers, command=self.command, post_data=post_body)
+        except Exception as e:
+            response = {"response_code": 500, "response": json.dumps({"response_message": "An error occurred"})}
+            logger.error("An error occurred. Exception: %s" % e)
         self.send_response(response['response_code'])
         if 'headers' in response:
             for header_k, header_v in response['headers']:
