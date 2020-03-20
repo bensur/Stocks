@@ -164,6 +164,8 @@ class StocksManager:
                     "response_code": 401}
 
     def validate_token(self, headers):
+        if 'Token' in headers.keys() and 'token' not in headers.keys():
+            headers['token'] = headers['Token']
         if 'token' not in headers.keys():
             return False
         else:

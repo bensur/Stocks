@@ -1,5 +1,6 @@
 import json
 import lib.helpers as helpers
+import traceback
 from http.server import BaseHTTPRequestHandler
 from management.StocksManager import StocksManager
 
@@ -7,7 +8,7 @@ from management.StocksManager import StocksManager
 logger = helpers.get_logger()
 
 
-# This class will handles any incoming request
+# This class will handle any incoming request
 class APIHandler(BaseHTTPRequestHandler):
     sm = StocksManager()
 
@@ -17,7 +18,8 @@ class APIHandler(BaseHTTPRequestHandler):
             response = self.sm.handle(path=self.path, headers=self.headers, command=self.command)
         except Exception as e:
             response = {"response_code": 500, "response": json.dumps({"response_message": "An error occurred"})}
-            logger.error("An error occurred. Exception: %s" % e)
+            logger.critical("An error occurred. Exception: %s" % e)
+            traceback.print_tb(e.__traceback__)
         self.send_response(response['response_code'])
         if 'headers' in response:
             for header_k, header_v in response['headers']:
@@ -41,7 +43,8 @@ class APIHandler(BaseHTTPRequestHandler):
             response = self.sm.handle(path=self.path, headers=self.headers, command=self.command, post_data=post_body)
         except Exception as e:
             response = {"response_code": 500, "response": json.dumps({"response_message": "An error occurred"})}
-            logger.error("An error occurred. Exception: %s" % e)
+            logger.critical("An error occurred. Exception: %s" % e)
+            traceback.print_tb(e.__traceback__)
         self.send_response(response['response_code'])
         if 'headers' in response:
             for header_k, header_v in response['headers']:
