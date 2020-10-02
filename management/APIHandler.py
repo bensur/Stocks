@@ -56,21 +56,3 @@ class APIHandler(BaseHTTPRequestHandler):
         if 'response' in response:
             self.wfile.write(response['response'].encode('utf-8'))
         return
-        # try:
-        #     response = self.sm.handle(path=self.path, headers=self.headers, command=self.command, post_data=post_body)
-        # except Exception as e:
-        #     print(e)
-        #     response = {"response": "An error has occurred",
-        #                 "response_code": 500}
-        # finally:
-        #     self.send_response(response['response_code'])
-        #     if 'headers' in response:
-        #         for header_k, header_v in response['headers']:
-        #             self.send_header(header_k, header_v)
-        #     else:
-        #         self.send_header('Content-type', 'application/json')
-        #     self.end_headers()
-        #     # Send the response
-        #     if 'response' in response:
-        #         self.wfile.write(response['response'].encode('utf-8'))
-        #     return

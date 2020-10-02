@@ -58,7 +58,7 @@ def curl(url, curl_headers=None, post_data="", username=None, password=None, coo
     return {'response_body': curl_buffer.getvalue(), 'response_code': response_code}
 
 
-def get_logger():
+def get_logger(loglevel=logging.DEBUG):
     """
     Return logger object initialized according to config file
     :return: logger object
@@ -66,7 +66,7 @@ def get_logger():
     """
     # Set logger
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(loglevel)
     # Create file handler
     # fh = logging.FileHandler(config['log_file'])
     # fh.setLevel(get_log_level(config['log_level']))

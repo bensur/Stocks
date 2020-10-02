@@ -17,11 +17,11 @@ class StocksManager:
             "register": "POST Method. Register new user and return the generated token. POST body must contain username"
                         " and initial deposit",
             "buy": "POST Method. Buys stocks. "
-                   "POST body must contain 'stocks' hash where the key is the name of stock and"
-                   " the value is the number of stocks to buy",
+                   "POST body must contain 'stocks' list to buy. "
+                   "Each item in the list is a hash with two keys - 'name' of the stock to buy and 'amount' to buy",
             "sell": "POST Method. Sells stocks. "
-                    "POST body must contain 'stocks' hash where the key is the name of stock to sell and"
-                   " the value is the number of stocks to sell",
+                    "POST body must contain 'stocks' list to sell. "
+                    "Each item in the list is a hash with two keys - 'name' of the stock to sell and 'amount' to sell",
             "help": "Return this help summary"
         }
         for http_method in self.supported_paths.keys():
